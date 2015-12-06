@@ -86,7 +86,7 @@ int main(int argc, char** argv)
             array2d<rgb_pixel> img;
             load_image(img, argv[i]);
             // Make the image larger so we can detect small faces.
-            pyramid_up(img);
+            //pyramid_up(img);
 
             // Now tell the face detector to give us a list of bounding boxes
             // around all the faces in the image.
@@ -106,6 +106,25 @@ int main(int argc, char** argv)
                 // you want them.  Here we just store them in shapes so we can
                 // put them on the screen.
                 shapes.push_back(shape);
+                
+                std::ofstream ofs;
+                stringstream points_filename;
+                if ( j == 0 )
+                {
+                    points_filename  << argv[i] << ".txt";
+                }else
+                {
+                    points_filename << argv[i] << "_" << j << ".txt";
+                }
+                
+                ofs.open(points_filename.str().c_str());
+                const full_object_detection& d = shapes[0];
+                for (unsigned long k = 0; k < shape.num_parts(); ++k)
+                {
+                    ofs << shape.part(k).x() << " " << shape.part(k).y() << endl;
+                    
+                }
+                ofs.close();
             }
 
             // Now let's view our face poses on the screen.
