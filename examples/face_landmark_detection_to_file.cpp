@@ -44,9 +44,13 @@
 #include <dlib/gui_widgets.h>
 #include <dlib/image_io.h>
 #include <iostream>
+#include <dlib/opencv.h>
+#include <opencv2/highgui/highgui.hpp>
+#include "render_face.hpp" 
 
 using namespace dlib;
 using namespace std;
+
 
 // ----------------------------------------------------------------------------------------
 
@@ -82,12 +86,13 @@ int main(int argc, char** argv)
         // Loop over all the images provided on the command line.
         for (int i = 2; i < argc; ++i)
         {
-            cout << "processing image " << argv[i] << endl;
-            array2d<rgb_pixel> img;
-            load_image(img, argv[i]);
-            // Make the image larger so we can detect small faces.
-            pyramid_up(img);
-
+            std::string filename(argv[i]);
+            cout << "processing image " << filename << endl;
+            //array2d<rgb_pixel> img;
+            //load_image(img, argv[i]);
+            cv::Mat imgMat = cv::imread(argv[i]);
+            cv_image<bgr_pixel> img(imgMat);
+            
             // Now tell the face detector to give us a list of bounding boxes
             // around all the faces in the image.
             std::vector<rectangle> dets = detector(img);
@@ -95,32 +100,45 @@ int main(int argc, char** argv)
 
             // Now we will go ask the shape_predictor to tell us the pose of
             // each face we detected.
+            
+            size_t lastindex = filename.find_last_of(".");
+            string basename = filename.substr(0, lastindex);
+            
             std::vector<full_object_detection> shapes;
             for (unsigned long j = 0; j < dets.size(); ++j)
             {
                 full_object_detection shape = sp(img, dets[j]);
-                cout << "number of parts: "<< shape.num_parts() << endl;
-                cout << "pixel position of first part:  " << shape.part(0) << endl;
-                cout << "pixel position of second part: " << shape.part(1) << endl;
-                // You get the idea, you can get all the face part locations if
-                // you want them.  Here we just store them in shapes so we can
-                // put them on the screen.
                 shapes.push_back(shape);
+                
+                std::stringstream points_filename;
+                std::ofstream ofs;
+                
+                if ( j == 0 )
+                {
+                    points_filename << basename <<  ".txt";
+                }else
+                {
+                    points_filename << basename <<  "_"  << j << ".txt";
+                }
+                
+                ofs.open(points_filename.str().c_str());
+                const full_object_detection& d = shapes[0];
+                for (unsigned long k = 0; k < shape.num_parts(); ++k)
+                {
+                    ofs << shape.part(k).x() << " " << shape.part(k).y() << endl;
+                    
+                }
+                ofs.close();
+                render_face(imgMat, shape);
+                
             }
+            
+            cv::imshow("image", imgMat);
+            cv::waitKey(0);
+            
 
-            // Now let's view our face poses on the screen.
-            win.clear_overlay();
-            win.set_image(img);
-            win.add_overlay(render_face_detections(shapes));
+            
 
-            // We can also extract copies of each face that are cropped, rotated upright,
-            // and scaled to a standard size as shown here:
-            dlib::array<array2d<rgb_pixel> > face_chips;
-            extract_image_chips(img, get_face_chip_details(shapes), face_chips);
-            win_faces.set_image(tile_images(face_chips));
-
-            cout << "Hit enter to process the next image..." << endl;
-            cin.get();
         }
     }
     catch (exception& e)

@@ -120,6 +120,13 @@ if (OpenCV_FOUND)
 
    ADD_EXECUTABLE(webcam_face_pose_ex webcam_face_pose_ex.cpp)
    TARGET_LINK_LIBRARIES(webcam_face_pose_ex dlib ${OpenCV_LIBS} )
+
+   ADD_EXECUTABLE(webcam_face_pose_fast webcam_face_pose_fast)
+   TARGET_LINK_LIBRARIES(webcam_face_pose_fast dlib ${OpenCV_LIBS} )
+
+
+   ADD_EXECUTABLE(face_landmark_detection_to_file face_landmark_detection_to_file.cpp)
+   TARGET_LINK_LIBRARIES(face_landmark_detection_to_file dlib ${OpenCV_LIBS} )
 endif()
 
 

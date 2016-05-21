@@ -28,14 +28,19 @@
 */
 
 #include <dlib/opencv.h>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing/render_face_detections.h>
 #include <dlib/image_processing.h>
 #include <dlib/gui_widgets.h>
+#include "render_face.hpp"
 
 using namespace dlib;
 using namespace std;
+
+#define FACE_DOWNSAMPLE_RATIO 4
+#define SKIP_FRAMES 2
+#define OPENCV_FACE_RENDER
 
 int main()
 {
@@ -48,18 +53,37 @@ int main()
             return 1;
         }
 
+        cv::Mat temp;
+        cap >> temp;
+        cv::Mat temp_small, temp_small2;
+        cv::resize(temp, temp_small, cv::Size(), 1.0/FACE_DOWNSAMPLE_RATIO, 1.0/FACE_DOWNSAMPLE_RATIO);
+        cv::resize(temp, temp_small2, cv::Size(), 0.5, 0.5);
+
+        
+        
+#ifndef OPENCV_FACE_RENDER 
         image_window win;
+#endif
 
         // Load face detection and pose estimation models.
         frontal_face_detector detector = get_frontal_face_detector();
         shape_predictor pose_model;
         deserialize("shape_predictor_68_face_landmarks.dat") >> pose_model;
 
+        int count = 0;
+        std::vector<rectangle> faces;
         // Grab and process frames until the main window is closed by the user.
+        double t = (double)cv::getTickCount();
+#ifdef OPENCV_FACE_RENDER
+        while(1)
+#else
         while(!win.is_closed())
+#endif
         {
+            
+            if ( count == 0 )
+                t = cv::getTickCount();
             // Grab a frame
-            cv::Mat temp;
             cap >> temp;
             // Turn OpenCV's Mat into something dlib can deal with.  Note that this just
             // wraps the Mat object, it doesn't copy anything.  So cimg is only valid as
@@ -67,19 +91,71 @@ int main()
             // to reallocate the memory which stores the image as that will make cimg
             // contain dangling pointers.  This basically means you shouldn't modify temp
             // while using cimg.
+            
+
+            cv::resize(temp, temp_small, cv::Size(), 1.0/FACE_DOWNSAMPLE_RATIO, 1.0/FACE_DOWNSAMPLE_RATIO);
+            cv_image<bgr_pixel> cimg_small(temp_small);
             cv_image<bgr_pixel> cimg(temp);
+            
 
             // Detect faces 
-            std::vector<rectangle> faces = detector(cimg);
+            if ( count % SKIP_FRAMES == 0 )
+            {
+                faces = detector(cimg_small);
+            }
+            
+
+            
             // Find the pose of each face.
             std::vector<full_object_detection> shapes;
             for (unsigned long i = 0; i < faces.size(); ++i)
-                shapes.push_back(pose_model(cimg, faces[i]));
-
+            {
+                rectangle r(
+                            (long)(faces[i].left() * FACE_DOWNSAMPLE_RATIO),
+                            (long)(faces[i].top() * FACE_DOWNSAMPLE_RATIO),
+                            (long)(faces[i].right() * FACE_DOWNSAMPLE_RATIO),
+                            (long)(faces[i].bottom() * FACE_DOWNSAMPLE_RATIO)
+                            );
+                full_object_detection shape = pose_model(cimg, r);
+                shapes.push_back(shape);
+#ifdef OPENCV_FACE_RENDER
+                    render_face(temp, shape);
+#endif
+            }
+            
+            
             // Display it all on the screen
-            win.clear_overlay();
-            win.set_image(cimg);
-            win.add_overlay(render_face_detections(shapes));
+#ifdef OPENCV_FACE_RENDER
+            
+                cv::resize(temp, temp_small2, cv::Size(), 0.5, 0.5);
+                cv::imshow("image", temp_small2);
+                // waitKey slows down the runtime quite a lot
+                /*
+                int k = cv::waitKey(1);
+                if ( k == 'q')
+                {
+                    return 0;
+                }
+                 */
+ 
+#else
+ 
+                win.clear_overlay();
+                win.set_image(cimg);
+                win.add_overlay(render_face_detections(shapes));
+#endif
+            
+            count++;
+            
+            if ( count == 200)
+            {
+                t = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
+                cout << "FPS " << (200.0)/t << endl;
+                count = 0;
+            }
+            
+
+            
         }
     }
     catch(serialization_error& e)
