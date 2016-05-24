@@ -61,6 +61,8 @@ int main()
         cv::Mat im_small, im_display;
         cv::resize(im, im_small, cv::Size(), 1.0/FACE_DOWNSAMPLE_RATIO, 1.0/FACE_DOWNSAMPLE_RATIO);
         cv::resize(im, im_display, cv::Size(), 0.5, 0.5);
+        
+        cv::Size size = im.size();
 
         
         
@@ -122,7 +124,7 @@ int main()
 #endif
             }
             
-            cv::putText(im, cv::format("%f",fps), cv::Point(50,50), cv::FONT_HERSHEY_COMPLEX, 1.5, cv::Scalar(0, 0, 255), 3);
+            cv::putText(im, cv::format("fps %.2f",fps), cv::Point(50, size.height - 50), cv::FONT_HERSHEY_COMPLEX, 1.5, cv::Scalar(0, 0, 255), 3);
             
             
             // Display it all on the screen
@@ -130,7 +132,7 @@ int main()
             
                 // Resize image for display
                 cv::resize(im, im_display, cv::Size(), 0.5, 0.5);
-                cv::imshow("image", im_display);
+                cv::imshow("Fast Facial Landmark Detector", im_display);
             
                 // WaitKey slows down the runtime quite a lot
                 // So check every 15 frames
