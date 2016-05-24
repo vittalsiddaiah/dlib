@@ -53,6 +53,7 @@ int main()
             return 1;
         }
 
+        double fps = 30.0; // Just a place holder. Actual value calculated after 100 frames.
         cv::Mat im;
         
         // Get first frame and allocate memory.
@@ -121,6 +122,8 @@ int main()
 #endif
             }
             
+            cv::putText(im, cv::format("%f",fps), cv::Point(50,50), cv::FONT_HERSHEY_COMPLEX, 1.5, cv::Scalar(0, 0, 255), 3);
+            
             
             // Display it all on the screen
 #ifdef OPENCV_FACE_RENDER
@@ -152,10 +155,10 @@ int main()
             
             count++;
             
-            if ( count == 200)
+            if ( count == 100)
             {
                 t = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-                cout << "FPS " << (200.0)/t << endl;
+                fps = 100.0/t;
                 count = 0;
             }
             
