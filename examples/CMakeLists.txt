@@ -121,7 +121,10 @@ if (OpenCV_FOUND)
    ADD_EXECUTABLE(webcam_face_pose_ex webcam_face_pose_ex.cpp)
    TARGET_LINK_LIBRARIES(webcam_face_pose_ex dlib ${OpenCV_LIBS} )
 
-   ADD_EXECUTABLE(webcam_face_pose_fast webcam_face_pose_fast)
+   ADD_EXECUTABLE(webcam_head_pose webcam_head_pose.cpp)
+   TARGET_LINK_LIBRARIES(webcam_head_pose dlib ${OpenCV_LIBS} )
+   
+	 ADD_EXECUTABLE(webcam_face_pose_fast webcam_face_pose_fast)
    TARGET_LINK_LIBRARIES(webcam_face_pose_fast dlib ${OpenCV_LIBS} )
 
 
