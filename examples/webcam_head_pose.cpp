@@ -41,23 +41,15 @@ using namespace std;
 #define FACE_DOWNSAMPLE_RATIO 4
 #define SKIP_FRAMES 2
 #define OPENCV_FACE_RENDER
-#define FOCAL_LENGTH 100000.0f
 
-cv::Point2d find_projected_point(cv::Mat &rotation_matrix, cv::Mat &translation_vector, cv::Mat camera_matrix, cv::Point3d model_point)
-{
-    cv::Mat point3d = rotation_matrix * cv::Mat(model_point) + translation_vector;
-    point3d = point3d / point3d.at<double>(2);
-    cv::Mat point2d_mat = camera_matrix * point3d;
-    return cv::Point2d(point2d_mat.at<double>(0), point2d_mat.at<double>(1));
-}
 
 
 std::vector<cv::Point3d> get_3d_model_points()
 {
     std::vector<cv::Point3d> modelPoints;
 
-    modelPoints.push_back(cv::Point3d(0.0f, 0.0f, 0.0f));
-    modelPoints.push_back(cv::Point3d(0.0f, -330.0f, -65.0f)); //The first must be (0,0,0)
+    modelPoints.push_back(cv::Point3d(0.0f, 0.0f, 0.0f)); //The first must be (0,0,0) while using POSIT
+    modelPoints.push_back(cv::Point3d(0.0f, -330.0f, -65.0f));
     modelPoints.push_back(cv::Point3d(-225.0f, 170.0f, -135.0f));
     modelPoints.push_back(cv::Point3d(225.0f, 170.0f, -135.0f));
     modelPoints.push_back(cv::Point3d(-150.0f, -150.0f, -125.0f));
@@ -90,8 +82,6 @@ int main()
 {
     try
     {
-        //cv::VideoCapture cap("/Users/spmallick/Movies/IMG_0211.MOV");
-        //cv::VideoCapture cap("/Users/spmallick/Movies/IMG_1232.MOV");
         cv::VideoCapture cap(0);
         if (!cap.isOpened())
         {
@@ -177,23 +167,28 @@ int main()
                 cv::Mat translation_vector;
 
                 
-                cv::Mat distCoeffs = cv::Mat::zeros(4,1,cv::DataType<double>::type);
+                cv::Mat dist_coeffs = cv::Mat::zeros(4,1,cv::DataType<double>::type);
                 
-                cv::solvePnP(model_points, image_points, camera_matrix, distCoeffs, rotation_vector, translation_vector);
+                cv::solvePnP(model_points, image_points, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
 
-                cv::Rodrigues(rotation_vector, rotation_matrix);
-                
-                cv::Point2d projected_point = find_projected_point(rotation_matrix, translation_vector, camera_matrix, cv::Point3d(0,0,1000.0));
+                //cv::Rodrigues(rotation_vector, rotation_matrix);
+               
+								std::vector<cv::Point3d> nose_end_point3D;
+								std::vector<cv::Point2d> nose_end_point2D;
+								nose_end_point3D.push_back(cv::Point3d(0,0,1000.0));
 
-                cv::line(im,image_points[0], projected_point, cv::Scalar(0,0,255), 2);
+								cv::projectPoints(nose_end_point3D, rotation_vector, translation_vector, camera_matrix, dist_coeffs, nose_end_point2D);		
+//                cv::Point2d projected_point = find_projected_point(rotation_matrix, translation_vector, camera_matrix, cv::Point3d(0,0,1000.0));
+								cv::line(im,image_points[0], nose_end_point2D[0], cv::Scalar(255,0,0), 2);
+//                cv::line(im,image_points[0], projected_point, cv::Scalar(0,0,255), 2);
                 
                 
                 
                 
 #endif
             }
-            
-            cv::putText(im, cv::format("fps %.2f",fps), cv::Point(50, size.height - 50), cv::FONT_HERSHEY_COMPLEX, 1.5, cv::Scalar(0, 0, 255), 3);
+        		// Uncomment the line below to see FPS    
+            //cv::putText(im, cv::format("fps %.2f",fps), cv::Point(50, size.height - 50), cv::FONT_HERSHEY_COMPLEX, 1.5, cv::Scalar(0, 0, 255), 3);
             
             
             // Display it all on the screen
@@ -201,7 +196,7 @@ int main()
             
                 // Resize image for display
                 im_display = im;
-                //cv::resize(im, im_display, cv::Size(), 0.5, 0.5);
+                cv::resize(im, im_display, cv::Size(), 0.5, 0.5);
                 cv::imshow("Fast Facial Landmark Detector", im_display);
 
                 // WaitKey slows down the runtime quite a lot
