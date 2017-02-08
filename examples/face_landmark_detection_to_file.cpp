@@ -45,7 +45,13 @@
 #include <dlib/image_io.h>
 #include <iostream>
 #include <dlib/opencv.h>
-#include <opencv2/highgui/highgui.hpp>
+
+#if CV_MAJOR_VERSION < 3
+#include <opencv2/highgui/highgui.hpp> // If you are using OpenCV 2
+#else
+#include <opencv2/imgproc.hpp> // If you are using OpenCV 3
+#endif
+
 #include "render_face.hpp" 
 
 using namespace dlib;
