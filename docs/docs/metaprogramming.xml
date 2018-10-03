@@ -58,6 +58,8 @@
          <item>tabs</item> 
          <item>tmin</item> 
          <item>tmax</item> 
+         <item>compile_time_integer_list</item> 
+         <item>make_compile_time_integer_range</item> 
       </section>
  
       <section>
@@ -114,6 +116,31 @@
             This is a template to compute the max of two values at compile time.
          </description>
          
+      </component>
+      
+   <!-- ************************************************************************* -->
+
+      <component>
+         <name>compile_time_integer_list</name>
+         <file>dlib/metaprogramming.h</file>
+         <spec_file link="true">dlib/metaprogramming.h</spec_file>
+         <description>
+            This is a variadic template that can represent a list of integers.
+         </description>
+         
+      </component>
+      
+   <!-- ************************************************************************* -->
+
+      <component>
+         <name>make_compile_time_integer_range</name>
+         <file>dlib/metaprogramming.h</file>
+         <spec_file link="true">dlib/metaprogramming.h</spec_file>
+         <description>
+            This is a variadic template that takes one number, MAX, as input
+            and creates a <a href="#compile_time_integer_list">compile_time_integer_list</a>
+            representing the range of integers [1,MAX] inclusive. 
+         </description>
       </component>
       
    <!-- ************************************************************************* -->
@@ -630,8 +657,11 @@
          <spec_file>dlib/assert.h</spec_file>
          <description>
       <p>
-            This is a macro function for debugging.  Its form is <tt>DLIB_ASSERT(condition that should be 
-            true,error message)</tt>.  If the condition is false DLIB_ASSERT throws an exception of type 
+            This is a macro function for debugging.  Its form is 
+<code_box>DLIB_ASSERT(condition that should be true, error message)</code_box> 
+or you can omit the error message and call it like:
+<code_box>DLIB_ASSERT(condition that should be true)</code_box>
+            If the condition is false DLIB_ASSERT throws an exception of type 
             dlib::fatal_error with fatal_error::type == EBROKEN_ASSERT.  An error message detailing
             the nature of the problem is stored in the member variable info which is of type std::string.  
             Look in the following file for more details.  The exception classes are defined 

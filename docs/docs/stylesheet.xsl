@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="utf8" ?>
    
 <!--
    To the extent possible under law, Davis E King  has waived all copyright and 
@@ -42,7 +42,7 @@
 
    <xsl:variable name="lcletters">abcdefghijklmnopqrstuvwxyz </xsl:variable>
    <xsl:variable name="ucletters">ABCDEFGHIJKLMNOPQRSTUVWXYZ </xsl:variable>
-   <xsl:variable name="badletters">?()&lt;&gt; /\&amp;~!@#$%^*_+=-[]{}</xsl:variable>
+   <xsl:variable name="badletters">'?()&lt;&gt; /\&amp;~!@#$%^*_+=-[]{}</xsl:variable>
    
    <!-- ************************************************************************* -->
 
@@ -327,7 +327,8 @@
          <div class="component"  >
       
          <a href="#top"><font size='2'><center>[top]</center></font></a>
-         <h1 style="margin:0px;"><xsl:value-of select="name"/></h1>
+         <h1 style="margin:0px;"><xsl:value-of select="name"/> 
+         </h1>
          <BR/>
          <BR/>
          <xsl:apply-templates select="description"/>
@@ -655,6 +656,11 @@
       <br/>
          <xsl:apply-templates/>
    </xsl:template>   
+
+   <xsl:template match="youtube">
+      <iframe width="900" height="506" src="{@src}" frameborder="0" allowfullscreen='1'></iframe>
+   </xsl:template>   
+
    <xsl:template match="a">
       <a href="{@href}">
          <xsl:apply-templates/>
@@ -702,6 +708,9 @@
          <xsl:apply-templates/>
        </table>
    </xsl:template>   
+   <xsl:template match="more_details">
+      <a style="float:none" class='more_details'>More Details...</a>
+   </xsl:template>   
    <xsl:template match="div">
       <div id="{@id}"><xsl:apply-templates/></div>
    </xsl:template>   
@@ -721,6 +730,11 @@
             <xsl:apply-templates/>
          </ul>
       </xsl:if>
+   </xsl:template>   
+   <xsl:template match="ol">
+      <ol>
+         <xsl:apply-templates/>
+       </ol>
    </xsl:template>   
    <xsl:template match="u">
       <u>
@@ -771,6 +785,13 @@
       <img src="{@src}" border="0" height="{@height}" width="{@width}" alt="{@alt}">
          <xsl:apply-templates/>
        </img>
+   </xsl:template>   
+   <xsl:template match="video">
+      <video controls="true" poster="{@src}.png">
+         <source src="{@src}.webm" type="video/webm"/>
+         <source src="{@src}.mp4" type="video/mp4"/>
+         <xsl:apply-templates/>
+      </video>
    </xsl:template>   
 
    <xsl:template name="term_list_go">
