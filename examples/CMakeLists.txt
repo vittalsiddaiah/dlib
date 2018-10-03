@@ -152,6 +152,15 @@ else()
 
       add_executable(webcam_face_pose_ex webcam_face_pose_ex.cpp)
       target_link_libraries(webcam_face_pose_ex dlib::dlib ${OpenCV_LIBS} )
+
+			add_executable(webcam_head_pose webcam_head_pose.cpp)
+   		target_link_libraries(webcam_head_pose dlib ${OpenCV_LIBS} )
+   
+			add_executable(webcam_face_pose_fast webcam_face_pose_fast)
+			target_link_libraries(webcam_face_pose_fast dlib ${OpenCV_LIBS} )
+
+			add_executable(face_landmark_detection_to_file face_landmark_detection_to_file.cpp)
+   		target_link_libraries(face_landmark_detection_to_file dlib ${OpenCV_LIBS} )
    else()
       message("OpenCV not found, so we won't build the webcam_face_pose_ex example.")
    endif()
@@ -241,25 +250,6 @@ add_example(train_shape_predictor_ex)
 add_example(using_custom_kernels_ex)
 add_gui_example(video_tracking_ex)
 add_example(xml_parser_ex)
-
-
-find_package(OpenCV)
-if (OpenCV_FOUND)
-   include_directories(${OpenCV_INCLUDE_DIRS})
-
-   ADD_EXECUTABLE(webcam_face_pose_ex webcam_face_pose_ex.cpp)
-   TARGET_LINK_LIBRARIES(webcam_face_pose_ex dlib ${OpenCV_LIBS} )
-
-   ADD_EXECUTABLE(webcam_head_pose webcam_head_pose.cpp)
-   TARGET_LINK_LIBRARIES(webcam_head_pose dlib ${OpenCV_LIBS} )
-   
-	 ADD_EXECUTABLE(webcam_face_pose_fast webcam_face_pose_fast)
-   TARGET_LINK_LIBRARIES(webcam_face_pose_fast dlib ${OpenCV_LIBS} )
-
-
-   ADD_EXECUTABLE(face_landmark_detection_to_file face_landmark_detection_to_file.cpp)
-   TARGET_LINK_LIBRARIES(face_landmark_detection_to_file dlib ${OpenCV_LIBS} )
-endif()
 
 if (DLIB_LINK_WITH_SQLITE3)
    add_example(sqlite_ex)
