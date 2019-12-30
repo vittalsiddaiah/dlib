@@ -284,9 +284,9 @@ namespace
         )
         {
             dlog << LINFO << "testing kernel_1a";
-            stack_kernel_test<stack<int>::kernel_1a>  ();
+            stack_kernel_test<dlib::stack<int>::kernel_1a>  ();
             dlog << LINFO << "testing kernel_1a_c";
-            stack_kernel_test<stack<int>::kernel_1a_c>();
+            stack_kernel_test<dlib::stack<int>::kernel_1a_c>();
         }
     } a;
 
